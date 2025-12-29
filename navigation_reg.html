@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Regulatory Navigation Tool</title>
+
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 30px;
+  }
+
+  .container {
+    display: flex;
+    gap: 40px;
+    position: relative;
+    align-items: flex-start;
+  }
+
+  .column {
+    width: 260px;
+  }
+
+  .item, .target {
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    background: #f4f4f4;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .item:hover {
+    background: #e0e0e0;
+  }
+
+  .target {
+    background: #fafafa;
+    border-left: 4px solid #bbb;
+  }
+
+  .details {
+    width: 360px;
+    padding: 16px;
+    border: 1px solid #ccc;
+    background: #fff;
+  }
+
+  .details h3 {
+    margin-top: 0;
+  }
+
+  svg {
+  position: absolute;
+  left: 260px;
+  top: 0;
+  width: 420px;
+  height: 100%;
+  z-index: 10;
+  overflow: visible;
+}
+
+</style>
+</head>
+
+<body>
+
+<h2>Regulatory Navigation Tool</h2>
+
+<div class="container">
+
+  <!-- LEFT COLUMN -->
+  <div class="column" id="left">
+    <div class="item" data-id="filing">Preparing & filing court documents</div>
+    <div class="item" data-id="speaking">Speaking in court</div>
+    <div class="item" data-id="transfer">Transfer documents</div>
+    <div class="item" data-id="probate">Probate / Confirmation</div>
+  </div>
+
+  <!-- SVG FOR LINES -->
+  <svg id="connections"></svg>
+
+  <!-- RIGHT COLUMN -->
+  <div class="column" id="right">
+    <div class="target" data-id="sra">Solicitors Regulation Authority</div>
+    <div class="target" data-id="bsb">Bar Standards Board</div>
+    <div class="target" data-id="cilex">CILEx Regulation</div>
+    <div class="target" data-id="iprb">IP Regulation Board</div>
+  </div>
+
+  <!-- DETAILS PANEL -->
+  <div class="details" id="details">
+    <h3>Details</h3>
+    <p>Click an activity to view regulatory details.</p>
+  </div>
+
+</div>
+
+<script>
+const data = {
+  filing: {
+    targets: ["sra", "cilex"],
+    text: "Preparing and filing court documents may constitute reserved legal activity depending on the level of involvement and whether the document is filed independently."
+  },
+  speaking: {
+    targets: ["bsb"],
+    text: "Speaking and addressing the court is generally restricted to authorised legal professionals."
+  },
+  transfer: {
+    targets: ["sra"],
+    text: "The transfer of legal documents may be permitted where the activity is administrative and does not involve substantive legal judgment."
+  },
+  probate: {
+    targets: ["sra", "iprb"],
+    text: "Probate activities are regulated and may only be undertaken by authorised individuals or entities."
+  }
+};
+
+const svg = document.getElementById("connections");
+const details = document.getElementById("details");
+
+document.querySelectorAll(".item").forEach(item => {
+  item.addEventListener("click", () => {
+    svg.innerHTML = "";
+
+    const id = item.dataset.id;
+    details.innerHTML = `<h3>Details</h3><p>${data[id].text}</p>`;
+
+    data[id].targets.forEach(targetId => {
+      const target = document.querySelector(`.target[data-id="${targetId}"]`);
+      drawLine(item, target);
+    });
+  });
+});
+
+function drawLine(from, to) {
+  const a = from.getBoundingClientRect();
+  const b = to.getBoundingClientRect();
+  const svgRect = svg.getBoundingClientRect();
+
+  const x1 = a.right - svgRect.left;
+  const y1 = a.top + a.height / 2 - svgRect.top;
+  const x2 = b.left - svgRect.left;
+  const y2 = b.top + b.height / 2 - svgRect.top;
+
+  const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  line.setAttribute("x1", x1);
+  line.setAttribute("y1", y1);
+  line.setAttribute("x2", x2);
+  line.setAttribute("y2", y2);
+  line.setAttribute("stroke", "#999");
+  line.setAttribute("stroke-width", "2");
+
+  svg.appendChild(line);
+}
+</script>
+
+</body>
+</html>
